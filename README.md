@@ -27,17 +27,7 @@ If you start a project first time, you need create a new table in db using migra
 
     php yii migrate
 
-### Install with Docker
-
-Update your vendor packages
-
-    docker-compose run --rm php composer update --prefer-dist
-    
-Run the installation triggers (creating cookie validation code)
-
-    docker-compose run --rm php composer install    
-    
-Start the container
+### Start with Docker
 
     docker-compose up --build
     
