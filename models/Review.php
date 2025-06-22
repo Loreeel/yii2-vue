@@ -72,4 +72,17 @@ class Review extends ActiveRecord
         ];
     }
 
+    public static function findByUserRole()
+    {
+        $query = self::find();
+        $role  = Yii::$app->user->isGuest ? null : Yii::$app->user->identity->role;
+        if ($role!=='admin') {
+            $query->andWhere(['status'=>self::STATUS_APPROVED]);
+        }
+        else if ($role==='admin') {
+            $query->andWhere(['status'=>[self::STATUS_PENDING,/* self::STATUS_REJECTED*/]]);
+        }
+        return $query;
+    }
+
 }

@@ -1,25 +1,27 @@
-<!-- components/Header.vue -->
 <template>
-  <header class="flex justify-between items-center p-4 bg-blue-600 text-white">
-    <h1 class="text-2xl font-bold">Мой сайт</h1>
-    <button
-      @click="login"
-      class="bg-white text-blue-600 font-semibold py-2 px-4 rounded hover:bg-blue-500 hover:text-white transition"
-    >
-      Войти
-    </button>
+  <header class="p-4 bg-gray-100 flex justify-between items-center">
+    <h1 class="text-xl font-bold">Yii2+Vue test task</h1>
+    <div>
+      <button v-if="authState.isAdmin" @click="logout" class="bg-red-600 text-white px-3 py-1 rounded">Logout</button>
+      <button v-else @click="showLogin = true" class="bg-green-600 text-white px-3 py-1 rounded">Login</button>
+    </div>
+    <AdminLoginModal :visible="showLogin" @close="showLogin = false" />
   </header>
 </template>
 
-<script>
-export default {
-  name: 'Header',
-  methods: {
-    login() {
-      alert('Нажата кнопка Войти');
-      // Тут можно добавить логику перехода на страницу логина
-      // например: this.$router.push('/login')
-    }
-  }
+<script setup>
+import { ref } from 'vue'
+import AdminLoginModal from './AdminLoginModal.vue'
+import auth from '../store/auth'
+import { useRouter } from 'vue-router'
+
+const showLogin = ref(false)
+const router = useRouter()
+
+const authState = auth.state
+
+function logout() {
+  auth.logout()
+  router.push('/')
 }
 </script>

@@ -13,7 +13,6 @@ export default {
   <div>
     <Header></Header>
     <main style="padding: 1rem;">
-      <!-- сюда Vue Router подставит текущую страницу -->
       <router-view />
     </main>
   </div>

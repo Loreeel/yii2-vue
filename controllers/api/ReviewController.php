@@ -3,11 +3,12 @@
 namespace app\controllers\api;
 
 use Yii;
-
-use app\models\Review;
 use yii\rest\ActiveController;
+use yii\data\ActiveDataProvider;
+use app\models\Review;
 use yii\web\ForbiddenHttpException;
-use yii\filters\auth\AuthMethod;
+use yii\filters\AccessControl;
+use app\components\OptionalHttpBearerAuth;
 
 class ReviewController extends ActiveController
 {
@@ -17,28 +18,38 @@ class ReviewController extends ActiveController
     {
         $behaviors = parent::behaviors();
 
-        $behaviors['authenticator'] = new class extends AuthMethod {
-            public function authenticate($user, $request, $response)
-            {
-                $token = $request->getHeaders()->get('Authorization');
-                $adminToken = Yii::$app->params['ADMIN_ACCESS_TOKEN']; 
+        $behaviors['authenticator'] = [
+            'class' => OptionalHttpBearerAuth::class,
+            'only' => ['index', 'view', 'update', 'delete'],
+        ];
 
-                if ($token === 'Bearer ' . $adminToken) {
-                    return true;
-                }
-                return null;
-            }
-
-            public function challenge($response)
-            {
-                $response->getHeaders()->set('WWW-Authenticate', 'Bearer realm="admin access"');
-            }
-        };
-
-        $behaviors['authenticator']->except = ['index', 'view', 'create'];
+        $behaviors['access'] = [
+            'class' => AccessControl::class,
+            'only'  => ['update','delete'],
+            'rules' => [
+                [
+                    'allow'         => true,
+                    'roles'         => ['@'],
+                    'matchCallback' => fn() => Yii::$app->user->identity->role==='admin',
+                ],
+            ],
+            'denyCallback' => fn() => throw new ForbiddenHttpException('Access denied'),
+        ];
 
         return $behaviors;
-}
+    }
 
+    public function actions()
+    {
+        $actions = parent::actions();
+        unset($actions['index']);
+        return $actions;
+    }
 
+    public function actionIndex()
+    {
+        return new ActiveDataProvider([
+            'query' => Review::findByUserRole(),
+        ]);
+    }
 }

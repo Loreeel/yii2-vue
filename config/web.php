@@ -19,11 +19,10 @@ $config = [
                 'application/json' => 'yii\web\JsonParser',
             ],
         ],
-        'user' => [
-            'class' => yii\web\User::class,
+       'user' => [
             'identityClass' => 'app\models\User',
-            'enableSession' => false,
             'enableAutoLogin' => false,
+            'enableSession' => false,
             'loginUrl' => null,
         ],
         'cache' => [
@@ -53,11 +52,13 @@ $config = [
             'showScriptName' => false,
             'enableStrictParsing' => false,
             'rules' => [
+                'POST api/auth/login' => 'api/auth/auth/login',
                 [
                     'class' => 'yii\rest\UrlRule', 
-                    'controller' => ['api/review'],
+                    'controller' => ['api/review','api/auth'],
                     'pluralize' => false,
                 ],
+                
             ],
         ],
     ],

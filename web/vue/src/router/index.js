@@ -1,17 +1,19 @@
-// router/index.js или router.js
 import { createRouter, createWebHistory } from 'vue-router'
+
 import MainLayout from '@/layouts/MainLayout.vue'
 
-import ReviewList from '../components/ReviewList.vue'
+import HomePage from '../pages/HomePage.vue'
+import AdminPage from '../pages/AdminPage.vue'
 
 const routes = [
   {
     path: '/',
     component: MainLayout,
     children: [
-      { path: '', component: ReviewList },
+      { path: '', component: HomePage },
+      { path: '/admin', component: AdminPage },
     ]
-  }
+  },
 ]
 
 const router = createRouter({
