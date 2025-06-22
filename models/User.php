@@ -21,7 +21,7 @@ class User implements IdentityInterface
 
     public static function findIdentityByAccessToken($token, $type = null)
     {
-        return null; // используется напрямую в OptionalHttpBearerAuth
+        return null;
     }
 
     public function getId() { return $this->id; }
