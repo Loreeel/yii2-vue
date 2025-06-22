@@ -4,6 +4,7 @@
     <ReviewList />
   </div>
 </template>
+
 <script setup>
     import ReviewList from '../components/ReviewList.vue'
 </script>

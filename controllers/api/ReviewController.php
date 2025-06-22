@@ -50,6 +50,11 @@ class ReviewController extends ActiveController
     {
         return new ActiveDataProvider([
             'query' => Review::findByUserRole(),
+            'pagination' => [
+            'pageSize' => 3,
+            'pageSizeParam' => false,
+            'pageParam' => 'page',
+        ],
         ]);
     }
 }
