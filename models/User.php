@@ -1,30 +1,67 @@
 <?php
+
 namespace app\models;
 
+use Yii;
+use yii\db\ActiveRecord;
 use yii\web\IdentityInterface;
 
-class User implements IdentityInterface
+class User extends ActiveRecord implements IdentityInterface
 {
-    public $id;
-    public $username;
-    public $accessToken;
-    public $role;
-
-    public function __construct($config = [])
+    public static function tableName()
     {
-        foreach ($config as $key => $value) {
-            $this->$key = $value;
-        }
+        return '{{%user}}';
     }
-    
-    public static function findIdentity($id) { return null; }
+
+    public function rules()
+    {
+        return [
+            [['username', 'password_hash'], 'required'],
+            [['username'], 'string', 'max' => 255],
+            [['password_hash', 'access_token'], 'string', 'max' => 255],
+            [['auth_key'], 'string', 'max' => 32],
+            [['role'], 'string', 'max' => 50],
+            [['username'], 'unique'],
+        ];
+    }
+
+    public static function findIdentity($id)
+    {
+        return static::findOne($id);
+    }
 
     public static function findIdentityByAccessToken($token, $type = null)
     {
-        return null;
+        return static::findOne(['access_token' => $token]);
     }
 
-    public function getId() { return $this->id; }
-    public function getAuthKey() { return null; }
-    public function validateAuthKey($authKey) { return false; }
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    public function getAuthKey()
+    {
+        return $this->auth_key;
+    }
+
+    public function validateAuthKey($authKey)
+    {
+        return $this->auth_key === $authKey;
+    }
+
+    public static function findByUsername($username)
+    {
+        return static::findOne(['username' => $username]);
+    }
+
+    public function validatePassword($password)
+    {
+        return Yii::$app->security->validatePassword($password, $this->password_hash);
+    }
+
+    public function generateAccessToken()
+    {
+        $this->access_token = Yii::$app->security->generateRandomString(40);
+    }
 }

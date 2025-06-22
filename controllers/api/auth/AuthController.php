@@ -4,30 +4,42 @@ namespace app\controllers\api\auth;
 
 use Yii;
 use yii\rest\Controller;
-use yii\web\UnauthorizedHttpException;
 use yii\web\Response;
+use yii\web\UnauthorizedHttpException;
+use app\models\User;
 
 class AuthController extends Controller
 {
+    public function behaviors()
+    {
+        $behaviors = parent::behaviors();
+        // Удаляем аутентификацию, чтобы разрешить логин
+        unset($behaviors['authenticator']);
+        return $behaviors;
+    }
+
     public function actionLogin()
     {
-        $authHeader = Yii::$app->request->getHeaders()->get('Authorization');
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        $request = Yii::$app->request;
 
-        if ($authHeader && preg_match('/^Bearer\s+(.*?)$/', $authHeader, $matches)) {
-            $requestToken = $matches[1];
-        } else {
-            throw new UnauthorizedHttpException('Missing or invalid Authorization header.');
+        $username = $request->post('username');
+        $password = $request->post('password');
+
+        $user = User::findByUsername($username);
+
+        if (!$user || !$user->validatePassword($password)) {
+            throw new UnauthorizedHttpException('Invalid credentials.');
         }
 
-        $adminAccessToken = Yii::$app->params['ADMIN_ACCESS_TOKEN'];
-        $adminToken = Yii::$app->params['ADMIN_REFRESH_TOKEN'];
-
-        if ($requestToken === $adminToken) {
-            return [
-                'access_token' => $adminAccessToken,
-            ];
+        if (!$user->access_token) {
+            $user->generateAccessToken();
+            $user->save(false);
         }
 
-        throw new UnauthorizedHttpException('Invalid token.');
+        return [
+            'access_token' => $user->access_token,
+            'role' => $user->role,
+        ];
     }
 }

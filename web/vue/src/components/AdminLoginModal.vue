@@ -4,12 +4,20 @@
       <h2 class="text-xl font-bold mb-4">Login as admin</h2>
 
       <input
-        v-model="token"
-        type="password"
-        placeholder="Input admin token"
+        v-model="username"
+        type="text"
+        placeholder="Username"
         class="border w-full p-2 rounded mb-2"
         :class="{ 'border-red-500': error }"
       />
+      <input
+        v-model="password"
+        type="password"
+        placeholder="Password"
+        class="border w-full p-2 rounded mb-4"
+        :class="{ 'border-red-500': error }"
+      />
+      
       <div v-if="error" class="text-red-500 text-sm mb-2">
         {{ error }}
       </div>
@@ -34,7 +42,8 @@ import auth from '../store/auth'
 const props = defineProps({ visible: Boolean })
 const emit = defineEmits(['close'])
 
-const token = ref('')
+const username = ref('')
+const password = ref('')
 const error = ref('')
 const loading = ref(false)
 const router = useRouter()
@@ -44,10 +53,9 @@ async function login() {
   error.value = ''
 
   try {
-    const response = await axios.post('/api/auth/login', null, {
-      headers: {
-        Authorization: `Bearer ${token.value.trim()}`,
-      },
+    const response = await axios.post('/api/auth/login', {
+      username: username.value.trim(),
+      password: password.value,
     })
 
     auth.setToken(response.data.access_token)
@@ -55,7 +63,7 @@ async function login() {
     router.push('/admin')
   } catch (e) {
     if (e.response?.status === 401) {
-      error.value = 'Wrong token. Please try again.'
+      error.value = 'Wrong username or password. Please try again.'
     } else {
       error.value = 'Server error.'
     }

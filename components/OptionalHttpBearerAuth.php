@@ -7,25 +7,18 @@ use Yii;
 
 class OptionalHttpBearerAuth extends HttpBearerAuth
 {
-    
-   public function authenticate($user, $request, $response)
+    public function authenticate($user, $request, $response)
     {
-        $token = $request->getHeaders()->get('Authorization');
-        $adminToken = Yii::$app->params['ADMIN_ACCESS_TOKEN'] ?? '';
+        $authHeader = $request->getHeaders()->get('Authorization');
 
-        if ($token === 'Bearer ' . $adminToken) {
-            $identity = new \app\models\User([
-                'id'          => 1,
-                'username'    => 'admin',
-                'role'        => 'admin',
-                'accessToken' => $adminToken,
-            ]);
-            $user->setIdentity($identity);
-            Yii::info('Admin authenticated');
-            return $identity;
+        if (!$authHeader || !preg_match('/^Bearer\s+(.*?)$/', $authHeader, $matches)) {
+            return null; 
         }
 
-        return null;
+        $token = $matches[1];
+        $identity = $user->loginByAccessToken($token, get_class($this));
+
+        return $identity ?: null;
     }
 
     public function beforeAction($action): bool
