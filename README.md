@@ -53,7 +53,6 @@ Edit the file `.env` with real data, for example:
     POSTGRES_PASSWORD=
     POSTGRES_HOST=
     POSTGRES_PORT=
-
-    ADMIN_ACCESS_TOKEN=your_token_here # Token for access secure routes
-    ADMIN_REFRESH_TOKEN=your_refresh_token_here # Token for login as admin
+    
+    ADMIN_PASSWORD=
 ```
