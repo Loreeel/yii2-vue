@@ -21,6 +21,11 @@ The minimum requirement by this project template that your Web server supports P
 
 INSTALLATION
 ------------
+### Migration
+
+If you start a project first time, you need create a new table in db using migration:
+
+    php yii migrate
 
 ### Install with Docker
 
